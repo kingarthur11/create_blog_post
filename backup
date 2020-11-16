@@ -1,0 +1,48 @@
+var defered = Q.defer();
+const offset = queryString.offset * queryString.limit;
+const limit = queryString.limit;
+var queryWhere = { class_id: { $ne: null }, section_id: { $ne: null } };
+var searchClass = {};
+var searchSection = {};
+if (queryString) {
+    if (queryString.class && queryString.class !== "") {
+       searchClass = { class_id: { $eq: queryString.class } };
+    } else if (queryString.class && queryString.class === "") {
+       searchClass = { class_id: { $ne: null } };
+    }
+
+if (queryString.section && queryString.section !== "") {
+      searchSection = { section_id: { $eq: queryString.section } };
+} else if (queryString.section && queryString.section === "") {
+      searchSection = { section_id: { $ne: null } };
+}
+}
+
+queryWhere = {
+    $and: [[searchClass], [searchSection]]
+};
+const schoolDB = require("../../db/models/tenant")(schema);
+const Student = schoolDB.model("Student");
+Student.findAll({
+   attributes: [
+  "id",
+  "first_name",
+  "last_name",
+  "profile_image_url",
+  "roll_number",
+  "emergency_contact_number"
+],
+offset: offset,
+limit: limit,
+where: queryWhere,
+order: [["roll_number", "ASC"]]
+})
+.then(result => {
+  defered.resolve(result);
+})
+.catch(err => {
+  defered.reject(err);
+});
+Recommended using Sequelize's own operators
+
+
