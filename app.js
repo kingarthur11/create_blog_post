@@ -6,6 +6,7 @@ const {
     JSend
 } = require('jsend-express');
 const dotenv = require('dotenv');
+
 dotenv.config();
 
 const app = express();
@@ -25,7 +26,7 @@ app.use(jsend.middleware.bind(jsend));
 app.use('/', routes);
 
 connec.sync({
-        force: true
+        force: false
     })
     .then(result => {
         console.log('connect to the port');

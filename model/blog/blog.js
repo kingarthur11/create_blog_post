@@ -1,7 +1,5 @@
 const Sequelize = require('sequelize');
-const dbs = require('./db');
-
-
+const dbs = require('../db');
 
 const Blog = dbs.define("blogs", {
     tile: {

@@ -1,93 +1,68 @@
-const User = require('../model/user');
-const blog = require('../model/blog');
+const User = require('../model/auth/user');
+const bCrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+ const dotenv = require('dotenv');
+dotenv.config();
 
+    const {
+            ACCESS_TOKEN_SECRET,
+            ACCESS_TOKEN_LIFE,
+            REFRESH_TOKEN_SECRET,
+            REFRESH_TOKEN_LIFE
+    } = process.env;
 
-exports.getAll = async (req, res, next) => {
+exports.signUp = async (req, res, next) => {
+    
     try {
-         const {limit, offset} = req.query;
+        const {role, userName, email, password, status} = req.body; 
+        const passwordHash = bCrypt.hashSync(password, 8);
 
-   const user = await  User.findAll({limit, offset, include: [blog], });   
-    return res.json(user)
-    (next);
-    } catch (error) {
+        verifyEmail =  await User.findOne({ where: {email} });
         
-    }   
-};
-
-exports.getOne = (req, res, next) => {
-    try {
-         const id = req.params;
-
-    const user = User.findById(id);
-    return res.json(user)
-        (next);
-    } catch (error) {
-        
-    }   
-};
-
-exports.post = async (req, res, next) => {
-    try {
-         const {firstName, lastName, email, password, status} = req.body;       
-
-        const user = await User.create({
-            firstName,
-            lastName,
+        if (verifyEmail) {
+            return res.status(401).send({message: "this email has been taken by another user!"});
+        } else {
+            const user = await User.create({
+            userName,
+            role: role ? role : admin,
             email,
             passwordHash,
             status: status ? status : inactive            
-        });   
-        console.log(passwordHash );    
-        return res.json(user);           
-    
+        });  
+                
+        return res.json(user); 
+        }
     } catch (error) {
         
     }    
 };
 
-exports.deleteAll = (req, res, next) => {
-    try {
-          const user = User.destroy();
-    return res.json(user)
-        (next);
-    } catch (error) {
-        
-    }  
+exports.signIn = async (req, res, next) => {
+    
+        const {password, userName} = req.body;
+        const userPass = await User.findOne({where: {userName}});
+        const passIsValid = bCrypt.compareSync(password, userPass.passwordHash);
+            if (!passIsValid) {
+                return res.status(401).send({message: "invalid Password!"});   
+            }
+        // let token = req.headers["x-access-token"];
+
+        //     console.log(token);
+
+        let payload = {userPass};
+        const accessToken = jwt.sign(payload, ACCESS_TOKEN_SECRET, {expiresIn: ACCESS_TOKEN_LIFE});
+        const refreshToken = jwt.sign(payload, REFRESH_TOKEN_SECRET, {expiresIn: REFRESH_TOKEN_LIFE});
+
+        return res.json(userPass); 
 };
 
-exports.deleteOne = (req, res, next) => {
+exports.getAll = async (req, res, next) => {
     try {
-         const id = req.params;
-
-    const user = User.destroy(id);
-    return res.json(user)
+                const {limit, offset} = req.query;
+        const user = await  User.findAll({limit, offset, include: [blog], });   
+        return res.json(user)
         (next);
     } catch (error) {
-        
+
     }   
 };
-
-exports.update = (req, res, next) => {
-    try {
-        const id = req.params;
-     const {firstName, lastName, email, password} = req.body;
-   
-       const user = User.update({
-            firstName,
-            lastName,
-            email,
-            password
-        },
-        {
-             where: {
-               id
-            }
-        } ); 
-
-    return res.json(user)
-        (next);
-    } catch (error) {
-        
-    }    
-};
-
