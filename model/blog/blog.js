@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 const dbs = require('../db');
 
 const Blog = dbs.define("blogs", {
-    tile: {
+    title: {
         type: Sequelize.STRING
     },
     body: {

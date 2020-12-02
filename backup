@@ -46,3 +46,96 @@ order: [["roll_number", "ASC"]]
 Recommended using Sequelize's own operators
 
 
+let payload = {username: username}; 
+        let accessToken = jwt.sign(payload, ACCESS_TOKEN_SECRET, {algorithm: "HS256", expireIn: ACCESS_TOKEN_LIFE})
+        let refreshToken = jwt.sign(payload, REFRESH_TOKEN_SECRET, {algorithm: "HS256", expiresIn: REFRESH_TOKEN_LIFE})
+        users[username].refreshToken = refreshToken;
+        res.cookie("jwt", accessToken, {secret: true, httpOnly: true})
+        res.send();
+
+
+
+const verifyToken = (req, res, next) => {
+    let verifyMe = req.cookies.jwt;
+    if (!verifyMe) {
+        return res.status(403).send();
+    }
+    jwt.verify(verifyMe, ACCESS_TOKEN_SECRET)
+};
+
+const refreshToken = (req, res, next) => {
+    let verifyMe = req.cookies.jwt;
+    if (!verifyMe) {
+        return res.status(403).send();
+    }
+    payload = jwt.verify(verifyMe, ACCESS_TOKEN_SECRET);
+    let refreshToken = use[payload.username].refreshToken;
+    jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
+    let newToken = jwt.sign(payload, process.ACCESS_TOKEN_SECRET, {expireIn: ACCESS_TOKEN_LIFE});
+    res.cookie("jwt", newToken, {secure: true, httpOnly: true});
+    res.send();
+
+};
+
+exports.getAll = async (req, res, next) => {
+    try {
+         const {limit, offset} = req.query;
+
+   const user = await  User.findAll({limit, offset, include: [blog], });   
+    return res.json(user)
+    (next);
+    } catch (error) {
+        
+    }   
+
+        const blog = require('../model/blog');
+const jwt = require('jsonwebtoken');
+
+
+exports.deleteAll = (req, res, next) => {
+    try {
+          const user = User.destroy();
+    return res.json(user)
+        (next);
+    } catch (error) {
+        
+    }  
+};
+
+exports.deleteOne = (req, res, next) => {
+    try {
+         const id = req.params;
+
+    const user = User.destroy(id);
+    return res.json(user)
+        (next);
+    } catch (error) {
+        
+    }   
+};
+
+exports.update = (req, res, next) => {
+    try {
+        const id = req.params;
+     const {firstName, lastName, email, password} = req.body;
+   
+       const user = User.update({
+            firstName,
+            lastName,
+            email,
+            password
+        },
+        {
+             where: {
+               id
+            }
+        } ); 
+
+    return res.json(user)
+        (next);
+    } catch (error) {
+        
+    }    
+};
+
+http://zetcode.com/javascript/sequelize/

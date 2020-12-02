@@ -1,22 +1,11 @@
-const Blog = require('../model/blog');
-const User = require('../model/user');
+const Blog = require('../model/blog/blog');
+const User = require('../model/auth/user');
 
 exports.getAll = async (req, res, next) =>{
     try {
-          const {limit, offset, title,
-        body,
-        author, allowComment } = req.query;
-   
-   const blog = await Blog.findAll({limit, offset, 
-         include: [User], 
+    // const {limit, offset, title, body, author, allowComment } = req.query;
     
-    // where: {
-    //         title: title,
-    //         body: body,
-    //         author: author,
-    //         allowComment 
-//    }
-    });   
+    const blog = await Blog.findAll(); console.log(blog)  
         return res.json(blog)
         (next);
     } catch (error) {
@@ -28,7 +17,7 @@ exports.getOne = (req, res, next) => {
     try {
          const blogId = req.params;
 
-    const blog = Blog.findById(blogId);
+    const blog = Blog.findById({id: blogId});
     return res.json(blog)
     (next);
     } catch (error) {
@@ -61,7 +50,6 @@ exports.post = async (req, res, next) => {
     }
    
 };
-
 
 exports.deleteAll = (req, res, next) => {
     try {
@@ -114,5 +102,3 @@ exports.update = (req, res, next) => {
         
     }   
 };
-
-

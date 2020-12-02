@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const dbs = require('../db');
-// const Blog = require('../blog');
+const Blog = require('../blog/blog');
 
 
 const User = dbs.define("users", {
@@ -23,8 +23,8 @@ const User = dbs.define("users", {
      }       
 });
 
-    // User.hasMany(Blog, {as: Blog.blog});
-    // Blog.belongsTo(User, { foreignKey: 'userId', as: "user" });
+     User.hasMany(Blog, {as: Blog.blog});
+     Blog.belongsTo(User, { foreignKey: 'userId', as: "user" });
 
 
 module.exports = User;
